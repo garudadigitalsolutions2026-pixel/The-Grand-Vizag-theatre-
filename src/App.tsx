@@ -48,12 +48,14 @@ export default function App() {
         {/* GLOBAL CINEMATIC ATTRACTION */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
           {/* The Video Source */}
-          <iframe 
-            src="https://drive.google.com/file/d/1Wh0GvJA4VkAD_IZn2Cznt1xGEIZcnefa/preview" 
-            className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 opacity-30 blur-[2px] scale-110 pointer-events-none"
-            frameBorder="0" 
-            allow="autoplay; encrypted-media" 
-          ></iframe>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <iframe 
+              src="https://drive.google.com/file/d/1Wh0GvJA4VkAD_IZn2Cznt1xGEIZcnefa/preview" 
+              className="w-full aspect-video min-w-[100vw] min-h-[100vh] opacity-30 blur-[1px] scale-125 md:scale-110 pointer-events-none object-cover"
+              frameBorder="0" 
+              allow="autoplay; encrypted-media" 
+            ></iframe>
+          </div>
           
           {/* Aesthetic Overlays: Dark Gradient + Marble Texture + Vignette */}
           <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black shadow-[inset_0_0_200px_rgba(0,0,0,1)]" />

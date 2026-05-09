@@ -53,7 +53,7 @@ export default function Theater({ user }: { user: any }) {
   if (loading) return <div className="text-primary text-center pt-32">Opening the Grand Doors...</div>;
 
   return (
-    <div className="relative pt-32 pb-16 px-6 md:px-16 flex flex-col lg:flex-row gap-12 items-start justify-center min-h-screen">
+    <div className="relative pt-24 md:pt-32 pb-16 px-4 md:px-16 flex flex-col lg:flex-row gap-12 items-start justify-center min-h-screen">
       {/* Theater View */}
       <div className="flex-1 w-full max-w-[800px] space-y-12">
         {movie && (
@@ -120,30 +120,32 @@ export default function Theater({ user }: { user: any }) {
           </div>
 
           {/* Seat Grid */}
-          <div className="grid grid-cols-10 gap-3 max-w-[500px] mx-auto">
-            {seats.map(seat => (
-              <motion.button
-                key={seat.id}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleSeat(seat.id)}
-                disabled={seat.status === 'booked'}
-                className={`
-                  aspect-square rounded-t-lg border-2 flex items-center justify-center text-[10px] font-bold
-                  ${seat.status === 'booked' 
-                    ? 'bg-[#800000]/60 border-[#800000] text-[#e5e2e1] cursor-not-allowed opacity-80' 
-                    : selectedSeats.includes(seat.id)
-                      ? 'bg-[#f2ca50] border-[#f2ca50] text-[#131313] shadow-[0_0_15px_rgba(242,202,80,0.5)]'
-                      : 'bg-transparent border-[#99907c] text-[#99907c] hover:border-[#f2ca50] hover:text-[#f2ca50]'
-                  }
-                `}
-              >
-                {seat.id}
-              </motion.button>
-            ))}
+          <div className="w-full overflow-x-auto pb-4 cursor-grab active:cursor-grabbing">
+            <div className="grid grid-cols-10 gap-2 md:gap-3 min-w-[320px] max-w-[500px] mx-auto">
+              {seats.map(seat => (
+                <motion.button
+                  key={seat.id}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => toggleSeat(seat.id)}
+                  disabled={seat.status === 'booked'}
+                  className={`
+                    aspect-square rounded-t-lg border flex items-center justify-center text-[8px] md:text-[10px] font-bold
+                    ${seat.status === 'booked' 
+                      ? 'bg-[#800000]/60 border-[#800000] text-[#e5e2e1] cursor-not-allowed opacity-80' 
+                      : selectedSeats.includes(seat.id)
+                        ? 'bg-[#f2ca50] border-[#f2ca50] text-[#131313] shadow-[0_0_15px_rgba(242,202,80,0.5)]'
+                        : 'bg-transparent border-[#99907c] text-[#99907c] hover:border-[#f2ca50] hover:text-[#f2ca50]'
+                    }
+                  `}
+                >
+                  {seat.id}
+                </motion.button>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-12 flex justify-center gap-8 text-xs font-bold uppercase tracking-widest text-[#99907c]">
+          <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-8 text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#99907c]">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-[#99907c] rounded-t-sm"></div>
               <span>Available</span>

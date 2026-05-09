@@ -158,8 +158,8 @@ export default function Bookings({ user }: { user: any }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-5xl font-serif text-[#f2ca50] mb-4 tracking-widest uppercase">MY RESERVATIONS</h1>
-            <p className="text-[#99907c] italic uppercase tracking-[0.3em] text-sm">Your Personal Schedule at the Manor</p>
+            <h1 className="text-3xl md:text-5xl font-serif text-[#f2ca50] mb-4 tracking-widest uppercase">MY RESERVATIONS</h1>
+            <p className="text-[#99907c] italic uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-sm">Your Personal Schedule at the Manor</p>
             <div className="w-48 h-px bg-gradient-to-r from-transparent via-[#f2ca50]/50 to-transparent mx-auto mt-8" />
           </motion.div>
         </header>

@@ -74,15 +74,15 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 px-6 bg-[#0a0a0a]">
+    <div className="min-h-screen pt-24 md:pt-32 pb-20 px-4 md:px-6 bg-[#0a0a0a]">
       <div className="max-w-4xl mx-auto">
-        <header className="text-center mb-16">
+        <header className="text-center mb-12 md:mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-5xl font-serif text-[#f2ca50] mb-4 tracking-widest">ADMIN MANOR</h1>
-            <p className="text-[#99907c] italic uppercase tracking-[0.3em] text-sm">Curating the Cinematic Experience</p>
+            <h1 className="text-3xl md:text-5xl font-serif text-[#f2ca50] mb-4 tracking-widest uppercase">ADMIN MANOR</h1>
+            <p className="text-[#99907c] italic uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-sm">Curating the Cinematic Experience</p>
             <div className="w-48 h-px bg-gradient-to-r from-transparent via-[#f2ca50]/50 to-transparent mx-auto mt-8" />
           </motion.div>
         </header>
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
           {/* Marble Texture Overlay */}
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/black-marble.png')]" />
           
-          <form onSubmit={handleUpdate} className="p-10 relative z-10">
+          <form onSubmit={handleUpdate} className="p-6 md:p-10 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {/* Left Column: Movie Details */}
               <div className="space-y-8">

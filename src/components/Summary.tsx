@@ -125,16 +125,16 @@ export default function Summary({ selectedSeats, user, onSuccess }: SummaryProps
   };
 
   return (
-    <div className="marble-texture border border-[#f2ca50]/40 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] gold-glow relative z-10">
+    <div className="marble-texture border border-[#f2ca50]/40 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] gold-glow relative z-10 max-w-lg mx-auto lg:max-w-none">
       {/* Card Header */}
-      <div className="bg-[#2a2a2a]/50 border-b border-[#4d4635] p-8 text-center">
+      <div className="bg-[#2a2a2a]/50 border-b border-[#4d4635] p-6 md:p-8 text-center">
         <p className="text-[10px] font-bold text-[#f2ca50] tracking-[0.2em] mb-2 uppercase">RESERVATION SUMMARY</p>
         <h2 className="text-4xl font-playfair text-[#e5e2e1] uppercase tracking-wider">{movie?.title || 'Oppenheimer'}</h2>
         <p className="text-sm text-[#d0c5af] mt-2 italic">{movie?.description}</p>
       </div>
 
       {/* Card Content */}
-      <div className="p-8 space-y-8">
+      <div className="p-6 md:p-8 space-y-6 md:space-y-8">
         {/* Details Grid */}
         <div className="grid grid-cols-2 gap-8">
           <div>

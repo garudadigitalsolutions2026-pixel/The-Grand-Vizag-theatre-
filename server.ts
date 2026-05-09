@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -17,7 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'grand_vizag_secret_2026';
-const apiKey = process.env.SENDINBLUE_API_KEY;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'concierge@grandvizag.com';
 const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || 'The Grand Vizag';
 
@@ -25,8 +26,8 @@ const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || 'The Grand Vizag';
 const awsConfig = {
   region: process.env.AWS_REGION || 'ap-south-1',
   credentials: {
-    const accessKey = ""; 
-const secretKey = "";
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
   },
 };
 
@@ -36,8 +37,8 @@ const docClient = DynamoDBDocumentClient.from(ddbClient);
 // Razorpay Configuration
 const RazorpayConstructor = (Razorpay as any).default || Razorpay;
 const razorpay = new RazorpayConstructor({
-  key_id: 'rzp_test_ShReictGH7Zex4',
-  key_secret: 'S2xBXZtWexf9rbT7G992ZQ6q',
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
 });
 
 // Table Names
@@ -168,17 +169,14 @@ async function sendEmailOTP(email: string, otp: string) {
   }
 }
 
-async function startServer() {
-  await initDB();
+const app = express();
+const PORT = 3000;
 
-  const app = express();
-  const PORT = 3000;
+app.use(express.json());
+app.use(cookieParser());
 
-  app.use(express.json());
-  app.use(cookieParser());
-
-  // Auth Middleware
-  const authenticate = (req: any, res: any, next: any) => {
+// Auth Middleware
+const authenticate = (req: any, res: any, next: any) => {
     const token = req.cookies.token;
     if (!token) {
       console.warn(`[Auth] No token found for ${req.method} ${req.path}. Cookies present:`, Object.keys(req.cookies));
@@ -542,8 +540,10 @@ async function startServer() {
     }
   });
 
-  // Vite Preview/Dev setup
-  if (process.env.NODE_ENV !== 'production') {
+async function finishSetup() {
+  await initDB();
+  
+  if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -551,15 +551,20 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
-startServer();
+finishSetup();
+export default app;
