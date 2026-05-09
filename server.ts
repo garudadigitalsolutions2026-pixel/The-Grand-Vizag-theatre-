@@ -216,6 +216,14 @@ const authenticate = (req: any, res: any, next: any) => {
   // API Routes
   app.post('/api/auth/send-otp', async (req, res) => {
     const { email } = req.body;
+    
+    if (!BREVO_API_KEY) {
+      console.error('CRITICAL: BREVO_API_KEY is not defined in environment variables.');
+      return res.status(500).json({ error: 'Mail service not configured. Please set BREVO_API_KEY in Vercel.' });
+    }
+
+    console.log(`[Email] Attempting to send OTP to ${email} using sender ${BREVO_SENDER_EMAIL}`);
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = Date.now() + 10 * 60 * 1000; // 10 minutes
 
@@ -227,7 +235,8 @@ const authenticate = (req: any, res: any, next: any) => {
       await sendEmailOTP(email, otp);
       res.json({ message: 'OTP sent successfully' });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error(`[Email] Failed to send to ${email}:`, err.message);
+      res.status(500).json({ error: err.message || 'Failed to send access code' });
     }
   });
 

@@ -34,10 +34,10 @@ export default function Auth({ onLogin }: { onLogin: (user: any) => void }) {
         setOtpSent(true);
         if (isReset) setMessage(data.message);
       } else {
-        setError(data.error);
+        setError(data.error || 'Failed to send code');
       }
     } catch (err) {
-      setError('Failed to send code');
+      setError('Connection failed. Is your Vercel backend running?');
     } finally {
       setLoading(false);
     }
