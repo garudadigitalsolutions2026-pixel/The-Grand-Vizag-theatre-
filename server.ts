@@ -175,6 +175,27 @@ const PORT = 3000;
 app.use(express.json());
 app.use(cookieParser());
 
+// Database Initialization Flag
+let isDbInitialized = false;
+
+async function ensureDb() {
+  if (isDbInitialized) return;
+  await initDB();
+  isDbInitialized = true;
+}
+
+// Middleware to ensure DB is initialized
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    try {
+      await ensureDb();
+    } catch (err) {
+      console.error('DB Init Error:', err);
+    }
+  }
+  next();
+});
+
 // Auth Middleware
 const authenticate = (req: any, res: any, next: any) => {
     const token = req.cookies.token;
@@ -549,7 +570,11 @@ async function finishSetup() {
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else {
+    
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
     if (fs.existsSync(distPath)) {
       app.use(express.static(distPath));
@@ -557,9 +582,7 @@ async function finishSetup() {
         res.sendFile(path.join(distPath, 'index.html'));
       });
     }
-  }
-
-  if (!process.env.VERCEL) {
+    
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });

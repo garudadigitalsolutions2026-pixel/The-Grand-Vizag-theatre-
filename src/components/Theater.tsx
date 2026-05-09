@@ -120,8 +120,8 @@ export default function Theater({ user }: { user: any }) {
           </div>
 
           {/* Seat Grid */}
-          <div className="w-full overflow-x-auto pb-4 cursor-grab active:cursor-grabbing">
-            <div className="grid grid-cols-10 gap-2 md:gap-3 min-w-[320px] max-w-[500px] mx-auto">
+          <div className="w-full overflow-x-auto pb-6 cursor-grab active:cursor-grabbing scrollbar-hide">
+            <div className="grid grid-cols-10 gap-1.5 md:gap-3 min-w-[340px] max-w-[500px] mx-auto px-2">
               {seats.map(seat => (
                 <motion.button
                   key={seat.id}
@@ -130,12 +130,12 @@ export default function Theater({ user }: { user: any }) {
                   onClick={() => toggleSeat(seat.id)}
                   disabled={seat.status === 'booked'}
                   className={`
-                    aspect-square rounded-t-lg border flex items-center justify-center text-[8px] md:text-[10px] font-bold
+                    aspect-square rounded-t-sm md:rounded-t-lg border flex items-center justify-center text-[7px] md:text-[10px] font-bold transition-all duration-300
                     ${seat.status === 'booked' 
-                      ? 'bg-[#800000]/60 border-[#800000] text-[#e5e2e1] cursor-not-allowed opacity-80' 
+                      ? 'bg-[#800000]/40 border-[#800000]/60 text-[#99907c] cursor-not-allowed' 
                       : selectedSeats.includes(seat.id)
                         ? 'bg-[#f2ca50] border-[#f2ca50] text-[#131313] shadow-[0_0_15px_rgba(242,202,80,0.5)]'
-                        : 'bg-transparent border-[#99907c] text-[#99907c] hover:border-[#f2ca50] hover:text-[#f2ca50]'
+                        : 'bg-transparent border-[#4d4635] text-[#99907c] hover:border-[#f2ca50] hover:text-[#f2ca50]'
                     }
                   `}
                 >
@@ -143,9 +143,12 @@ export default function Theater({ user }: { user: any }) {
                 </motion.button>
               ))}
             </div>
+            <div className="md:hidden text-center text-[8px] text-[#99907c] mt-4 uppercase tracking-[0.2em] animate-pulse">
+              ← Scroll to View Full Theater →
+            </div>
           </div>
 
-          <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-8 text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#99907c]">
+          <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-8 text-[9px] md:text-xs font-bold uppercase tracking-widest text-[#99907c]">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-[#99907c] rounded-t-sm"></div>
               <span>Available</span>
