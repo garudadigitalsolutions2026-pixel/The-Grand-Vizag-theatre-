@@ -625,18 +625,12 @@ const authenticate = (req: any, res: any, next: any) => {
   });
 
 async function finishSetup() {
-  await initDB();
-  
   if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-    
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
   } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
     if (fs.existsSync(distPath)) {
@@ -645,11 +639,17 @@ async function finishSetup() {
         res.sendFile(path.join(distPath, 'index.html'));
       });
     }
-    
+  }
+
+  // Listen immediately so Cloud Run health check passes
+  if (!process.env.VERCEL) {
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   }
+
+  // Init DB after listening — don't block port binding
+  initDB().catch(err => console.error('DB init error:', err));
 }
 
 finishSetup();
