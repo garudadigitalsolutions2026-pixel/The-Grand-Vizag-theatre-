@@ -45,24 +45,14 @@ export default function App() {
       <div className="min-h-screen bg-black text-[#e5e2e1] font-hanken relative">
         <Navbar user={user} onLogout={handleLogout} />
         
-        {/* GLOBAL CINEMATIC ATTRACTION */}
+        {/* GLOBAL CINEMATIC ATMOSPHERE */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          {/* The Video Source */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <iframe 
-              src="https://drive.google.com/file/d/1Wh0GvJA4VkAD_IZn2Cznt1xGEIZcnefa/preview" 
-              className="w-full aspect-video min-w-[100vw] min-h-[100vh] opacity-30 blur-[1px] scale-125 md:scale-110 pointer-events-none object-cover"
-              frameBorder="0" 
-              allow="autoplay; encrypted-media" 
-            ></iframe>
-          </div>
-          
-          {/* Aesthetic Overlays: Dark Gradient + Marble Texture + Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black shadow-[inset_0_0_200px_rgba(0,0,0,1)]" />
-          <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/black-marble.png')]" />
-          
-          {/* Chiaroscuro Spotlighting */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[#f2ca50]/5 rounded-full blur-[150px]"></div>
+          <div className="absolute inset-0 bg-[#080808]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#f2ca50]/4 rounded-full blur-[160px] animate-pulse" />
+          <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-[#8d1227]/5 rounded-full blur-[120px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />
+          <div className="absolute inset-0 opacity-[0.025] bg-[url('https://www.transparenttextures.com/patterns/black-marble.png')]" />
         </div>
 
         <main className="relative z-10">
