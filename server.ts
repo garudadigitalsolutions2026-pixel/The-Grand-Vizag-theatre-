@@ -34,12 +34,18 @@ const awsConfig = {
 const ddbClient = new DynamoDBClient(awsConfig);
 const docClient = DynamoDBDocumentClient.from(ddbClient);
 
-// Razorpay Configuration
+// Razorpay Configuration — lazy init to avoid crash when env vars absent at startup
 const RazorpayConstructor = (Razorpay as any).default || Razorpay;
-const razorpay = new RazorpayConstructor({
-  key_id: process.env.RAZORPAY_KEY_ID || '',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-});
+let _razorpay: any = null;
+function getRazorpay() {
+  if (!_razorpay) {
+    _razorpay = new RazorpayConstructor({
+      key_id: process.env.RAZORPAY_KEY_ID || '',
+      key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+    });
+  }
+  return _razorpay;
+}
 
 // Table Names
 const USERS_TABLE = 'GrandVizag_Users';
@@ -493,7 +499,7 @@ const authenticate = (req: any, res: any, next: any) => {
 
     try {
       console.log(`[Razorpay] Creating order: Amount=${amount} INR`);
-      const order = await razorpay.orders.create({
+      const order = await getRazorpay().orders.create({
         amount: Math.round(Number(amount) * 100), // Amount in paise
         currency: 'INR',
         receipt: `vizag_rec_${Date.now()}`,
