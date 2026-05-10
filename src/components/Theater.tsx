@@ -3,7 +3,9 @@ import { motion } from 'motion/react';
 import Summary from './Summary';
 
 interface Seat {
-  id: string;
+  id: string;            // compound key: "A1_2026-05-25"
+  seatLabel?: string;    // display label: "A1"
+  screeningDate?: string;
   status: 'available' | 'booked';
   userId?: number;
 }
@@ -139,7 +141,7 @@ export default function Theater({ user }: { user: any }) {
                     }
                   `}
                 >
-                  {seat.id}
+                  {seat.seatLabel || seat.id.split('_')[0]}
                 </motion.button>
               ))}
             </div>

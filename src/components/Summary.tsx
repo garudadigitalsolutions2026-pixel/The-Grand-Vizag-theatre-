@@ -64,7 +64,7 @@ export default function Summary({ selectedSeats, user, onSuccess }: SummaryProps
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'The Grand Vizag',
-        description: `Booking for ${selectedSeats.join(', ')}`,
+        description: `Booking for ${selectedSeats.map(s => s.split('_')[0]).join(', ')}`,
         order_id: orderData.id,
         handler: async (response: any) => {
           console.log('Payment successful receipt:', response.razorpay_payment_id);
@@ -154,7 +154,9 @@ export default function Summary({ selectedSeats, user, onSuccess }: SummaryProps
               <label className="text-[10px] font-bold text-[#99907c] block mb-2 uppercase tracking-widest">SELECTED SEATS</label>
               <div className="flex flex-wrap gap-2">
                 {selectedSeats.map(seat => (
-                  <span key={seat} className="px-3 py-1 bg-[#8d1227]/30 border border-[#8d1227] text-[#ff989b] rounded font-bold">{seat}</span>
+                  <span key={seat} className="px-3 py-1 bg-[#8d1227]/30 border border-[#8d1227] text-[#ff989b] rounded font-bold">
+                    {seat.split('_')[0]}
+                  </span>
                 ))}
               </div>
             </div>

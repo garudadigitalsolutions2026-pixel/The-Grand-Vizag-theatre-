@@ -116,23 +116,24 @@ async function initDB() {
     console.error('Error seeding movie:', err);
   }
 
-  // Seed Seats
-  try {
-    const seatsData = await docClient.send(new ScanCommand({ TableName: SEATS_TABLE, Limit: 1 }));
-    if (!seatsData.Items || seatsData.Items.length === 0) {
-      console.log('Seeding seats...');
-      const rows = ['A', 'B', 'C'];
-      for (const row of rows) {
-        for (let i = 1; i <= 10; i++) {
-          await docClient.send(new PutCommand({
-            TableName: SEATS_TABLE,
-            Item: { id: `${row}${i}`, status: 'available' }
-          }));
-        }
+}
+
+// Create 30 seats for a specific screening date (idempotent — skips existing)
+async function ensureSeatsForDate(date: string) {
+  const rows = ['A', 'B', 'C'];
+  for (const row of rows) {
+    for (let i = 1; i <= 10; i++) {
+      const seatLabel = `${row}${i}`;
+      try {
+        await docClient.send(new PutCommand({
+          TableName: SEATS_TABLE,
+          Item: { id: `${seatLabel}_${date}`, seatLabel, screeningDate: date, status: 'available' },
+          ConditionExpression: 'attribute_not_exists(id)',
+        }));
+      } catch (e: any) {
+        if (e.name !== 'ConditionalCheckFailedException') throw e;
       }
     }
-  } catch (err) {
-    console.error('Error seeding seats:', err);
   }
 }
 
@@ -447,12 +448,39 @@ const authenticate = (req: any, res: any, next: any) => {
 
   app.get('/api/seats', async (req, res) => {
     try {
-      const data = await docClient.send(new ScanCommand({ TableName: SEATS_TABLE }));
-      const items = (data.Items || []).sort((a: any, b: any) => a.id.localeCompare(b.id));
-      res.json(items);
+      // Get current screening date
+      const { Item: movie } = await docClient.send(new GetCommand({ TableName: MOVIE_TABLE, Key: { id: 'current' } }));
+      const currentDate = movie?.date || '';
+      if (!currentDate) return res.json([]);
+
+      // Fetch seats for this date only
+      const scan = await docClient.send(new ScanCommand({
+        TableName: SEATS_TABLE,
+        FilterExpression: 'screeningDate = :date',
+        ExpressionAttributeValues: { ':date': currentDate },
+      }));
+
+      let seats = scan.Items || [];
+
+      // Auto-seed if this date has no seats yet
+      if (seats.length === 0) {
+        console.log(`[Seats] No seats for ${currentDate}, seeding...`);
+        await ensureSeatsForDate(currentDate);
+        const fresh = await docClient.send(new ScanCommand({
+          TableName: SEATS_TABLE,
+          FilterExpression: 'screeningDate = :date',
+          ExpressionAttributeValues: { ':date': currentDate },
+        }));
+        seats = fresh.Items || [];
+      }
+
+      const sorted = seats.sort((a: any, b: any) =>
+        (a.seatLabel || a.id).localeCompare(b.seatLabel || b.id)
+      );
+      res.json(sorted);
     } catch (err) {
       console.error('Fetch seats error:', err);
-      res.json([]); // Return empty array instead of error object to prevent frontend crash
+      res.json([]);
     }
   });
 
@@ -486,22 +514,27 @@ const authenticate = (req: any, res: any, next: any) => {
     const userEmail = req.user.email;
 
     try {
+      // Snapshot current movie info at booking time so history stays accurate
+      const { Item: movie } = await docClient.send(new GetCommand({ TableName: MOVIE_TABLE, Key: { id: 'current' } }));
+
       for (const id of seatIds) {
         await docClient.send(new UpdateCommand({
           TableName: SEATS_TABLE,
           Key: { id },
-          UpdateExpression: 'SET #status = :booked, #user = :user, #time = :time',
+          UpdateExpression: 'SET #status = :booked, #user = :user, #time = :time, movieTitle = :title, movieTime = :mtime',
           ConditionExpression: '#status = :available',
           ExpressionAttributeNames: {
             '#status': 'status',
             '#user': 'userEmail',
-            '#time': 'bookedAt'
+            '#time': 'bookedAt',
           },
           ExpressionAttributeValues: {
             ':booked': 'booked',
             ':available': 'available',
             ':user': userEmail,
-            ':time': new Date().toISOString()
+            ':time': new Date().toISOString(),
+            ':title': movie?.title || '',
+            ':mtime': movie?.time || '',
           }
         }));
       }
@@ -525,25 +558,28 @@ const authenticate = (req: any, res: any, next: any) => {
     const userEmail = req.user.email;
 
     try {
+      const { Item: movie } = await docClient.send(new GetCommand({ TableName: MOVIE_TABLE, Key: { id: 'current' } }));
       console.log(`[Admin] Blocking seats: ${seatIds.join(', ')} by ${userEmail}`);
       for (const id of seatIds) {
         await docClient.send(new UpdateCommand({
           TableName: SEATS_TABLE,
           Key: { id },
-          UpdateExpression: 'SET #status = :booked, #user = :user, #time = :time, #type = :type',
+          UpdateExpression: 'SET #status = :booked, #user = :user, #time = :time, #type = :type, movieTitle = :title, movieTime = :mtime',
           ConditionExpression: '#status = :available',
           ExpressionAttributeNames: {
             '#status': 'status',
             '#user': 'userEmail',
             '#time': 'bookedAt',
-            '#type': 'bookingType'
+            '#type': 'bookingType',
           },
           ExpressionAttributeValues: {
             ':booked': 'booked',
             ':available': 'available',
             ':user': userEmail,
             ':time': new Date().toISOString(),
-            ':type': 'admin_block'
+            ':type': 'admin_block',
+            ':title': movie?.title || '',
+            ':mtime': movie?.time || '',
           }
         }));
       }
